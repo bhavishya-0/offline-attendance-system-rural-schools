@@ -1,0 +1,1661 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rural School Attendance System</title>
+  <script src="./_sdk/element_sdk.js"></script>
+  <script src="./_sdk/data_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; font-family: 'Source Sans 3', sans-serif; }
+
+    :root {
+      --bg-color: #8ce4f2;
+      --surface-color: #f8f9d1;
+      --text-color: #2C2C2C;
+      --primary-color: #5A7D60;
+      --secondary-color: #8B7355;
+    }
+
+    .app-root {
+      height: 100%;
+      width: 100%;
+      overflow: auto;
+      background: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    .heading-font { font-family: 'Playfair Display', Georgia, serif; }
+    .body-font { font-family: 'Source Sans 3', sans-serif; }
+
+    .hover-lift {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .hover-scale {
+      transition: transform 0.2s ease;
+    }
+    .hover-scale:hover {
+      transform: scale(1.02);
+    }
+
+    .hover-indent {
+      transition: padding-left 0.2s ease, border-left-width 0.2s ease;
+      border-left: 0px solid var(--primary-color);
+    }
+    .hover-indent:hover {
+      padding-left: 12px;
+      border-left-width: 3px;
+    }
+
+    .btn-hover {
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+    .btn-hover:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .btn-hover:active {
+      transform: translateY(0);
+      opacity: 0.9;
+    }
+
+    .input-focus {
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .input-focus:focus {
+      box-shadow: 0 0 0 3px rgba(90, 125, 96, 0.12);
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stagger-1 { animation-delay: 0.05s; opacity: 0; }
+    .stagger-2 { animation-delay: 0.1s; opacity: 0; }
+    .stagger-3 { animation-delay: 0.15s; opacity: 0; }
+    .stagger-4 { animation-delay: 0.2s; opacity: 0; }
+
+    .slide-in-right {
+      animation: slideRight 0.35s ease forwards;
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-16px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .pulse-dot {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      animation: toastIn 0.3s ease forwards;
+      max-width: 320px;
+    }
+    .toast-success { background: #E8F5E9; color: #2E7D32; border-left: 3px solid #4CAF50; }
+    .toast-error { background: #FFEBEE; color: #C62828; border-left: 3px solid #F44336; }
+    .toast-info { background: #E3F2FD; color: #1565C0; border-left: 3px solid #2196F3; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeInQuick 0.2s ease;
+    }
+    @keyframes fadeInQuick {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .modal-box {
+      background: var(--surface-color);
+      border-radius: 12px;
+      padding: 28px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      animation: modalPop 0.25s ease;
+    }
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+    .att-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .att-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e5e2db;
+    }
+    .att-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f0ede8;
+      font-size: 14px;
+    }
+    .att-table tr.hover-indent { border-left: 0px solid var(--primary-color); }
+
+    .badge-present { background: #E8F5E9; color: #2E7D32; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-absent { background: #FFEBEE; color: #C62828; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-late { background: #FFF3E0; color: #E65100; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-synced { background: #E8F5E9; color: #2E7D32; }
+    .badge-pending { background: #FFF8E1; color: #F57F17; }
+
+    .tab-item {
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.2s ease;
+      color: #888;
+    }
+    .tab-item.active {
+      border-color: var(--primary-color);
+      color: var(--text-color);
+    }
+    .tab-item:hover {
+      color: var(--text-color);
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full">
+  <div class="app-root" id="appRoot">
+   <div class="toast-container" id="toastContainer"></div>
+   
+   <!-- SCREEN: ROLE SELECTION -->
+   <div id="screenRoleSelect" class="h-full flex flex-col">
+    <header class="px-6 py-4 flex items-center justify-between border-b" style="border-color: #e5e2db; background: var(--surface-color);">
+     <div class="flex items-center gap-3">
+      <svg width="32" height="32" viewbox="0 0 32 32" fill="none"><rect x="4" y="14" width="24" height="14" rx="2" fill="#5A7D60" opacity="0.15" /> <path d="M16 4L4 14h24L16 4z" fill="#5A7D60" opacity="0.25" /> <rect x="13" y="20" width="6" height="8" rx="1" fill="#5A7D60" opacity="0.4" /> <circle cx="16" cy="11" r="2" fill="#5A7D60" opacity="0.5" />
+      </svg>
+      <h1 class="heading-font text-xl font-semibold" id="mainTitle">Rural School Attendance</h1>
+     </div>
+     <div class="flex items-center gap-2 text-xs" id="connectionStatus"><span class="inline-block w-2 h-2 rounded-full pulse-dot" id="statusDot" style="background: #4CAF50;"></span> <span id="statusText">Online</span>
+     </div>
+    </header>
+    <main class="flex-1 flex flex-col items-center justify-center px-4 py-8">
+     <div class="text-center mb-10 fade-in">
+      <h2 class="heading-font text-3xl font-bold mb-2" style="color: var(--text-color);">Welcome</h2>
+      <p class="text-sm" style="color: #777;">Automated Attendance System for Rural Schools</p>
+      <p class="text-xs mt-1" style="color: #aaa;">Works offline • Syncs when connected • SMS notifications</p>
+     </div>
+     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl w-full"><button onclick="showLogin('teacher')" class="hover-lift bg-white rounded-xl p-6 text-center cursor-pointer border border-transparent fade-in stagger-1" style="border-color: #e5e2db;" aria-label="Teacher Login">
+       <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(90,125,96,0.08);">
+        <svg width="32" height="32" viewbox="0 0 32 32" fill="none">
+         <circle cx="16" cy="10" r="5" stroke="#5A7D60" stroke-width="2" fill="none" /><path d="M8 26c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#5A7D60" stroke-width="2" fill="none" stroke-linecap="round" /><path d="M22 14l3-2v6" stroke="#5A7D60" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+       </div><h3 class="heading-font text-lg font-semibold mb-1">Teacher</h3><p class="text-xs" style="color: #888;">Mark attendance, manage classes</p></button> <button onclick="showLogin('principal')" class="hover-lift bg-white rounded-xl p-6 text-center cursor-pointer border border-transparent fade-in stagger-2" style="border-color: #e5e2db;" aria-label="Principal Login">
+       <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(139,115,85,0.08);">
+        <svg width="32" height="32" viewbox="0 0 32 32" fill="none">
+         <circle cx="16" cy="10" r="5" stroke="#8B7355" stroke-width="2" fill="none" /><path d="M8 26c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#8B7355" stroke-width="2" fill="none" stroke-linecap="round" /><path d="M12 6l4-3 4 3" stroke="#8B7355" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+       </div><h3 class="heading-font text-lg font-semibold mb-1">Principal</h3><p class="text-xs" style="color: #888;">Oversee reports, manage school</p></button> <button onclick="showLogin('government')" class="hover-lift bg-white rounded-xl p-6 text-center cursor-pointer border border-transparent fade-in stagger-3" style="border-color: #e5e2db;" aria-label="Government Login">
+       <div class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(90,125,96,0.06);">
+        <svg width="32" height="32" viewbox="0 0 32 32" fill="none">
+         <rect x="6" y="14" width="20" height="12" rx="1" stroke="#5A7D60" stroke-width="2" fill="none" /><path d="M16 6l-10 8h20L16 6z" stroke="#5A7D60" stroke-width="2" fill="none" stroke-linejoin="round" /><line x1="10" y1="18" x2="10" y2="24" stroke="#5A7D60" stroke-width="1.5" stroke-linecap="round" /><line x1="16" y1="18" x2="16" y2="24" stroke="#5A7D60" stroke-width="1.5" stroke-linecap="round" /><line x1="22" y1="18" x2="22" y2="24" stroke="#5A7D60" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+       </div><h3 class="heading-font text-lg font-semibold mb-1">Government</h3><p class="text-xs" style="color: #888;">District analytics, oversight</p></button>
+     </div>
+    </main>
+    <footer class="px-6 py-3 text-center text-xs border-t" style="border-color: #e5e2db; color: #aaa;" id="footerText">
+     Designed for low-resource rural environments • Offline-first approach
+    </footer>
+   </div><!-- SCREEN: LOGIN -->
+   <div id="screenLogin" class="h-full flex flex-col" style="display:none;">
+    <header class="px-6 py-4 flex items-center justify-between border-b" style="border-color: #e5e2db; background: var(--surface-color);"><button onclick="goToRoleSelect()" class="flex items-center gap-2 text-sm btn-hover" style="color: var(--primary-color);" aria-label="Go back">
+      <svg width="18" height="18" viewbox="0 0 18 18" fill="none">
+       <path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg> Back </button> <span class="text-sm font-medium" id="loginRoleLabel">Teacher Login</span>
+     <div style="width:60px;"></div>
+    </header>
+    <main class="flex-1 flex items-center justify-center px-4">
+     <div class="bg-white rounded-xl p-8 w-full max-w-sm border fade-in" style="border-color: #e5e2db;">
+      <div class="text-center mb-6">
+       <div class="mx-auto mb-3 w-12 h-12 rounded-full flex items-center justify-center" id="loginIcon" style="background: rgba(90,125,96,0.08);">
+        <svg width="24" height="24" viewbox="0 0 24 24" fill="none">
+         <circle cx="12" cy="8" r="4" stroke="#5A7D60" stroke-width="1.5" fill="none" /><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#5A7D60" stroke-width="1.5" fill="none" stroke-linecap="round" />
+        </svg>
+       </div>
+       <h2 class="heading-font text-xl font-semibold" id="loginTitle">Teacher Login</h2>
+       <p class="text-xs mt-1" style="color: #999;" id="loginSubtitle">Enter your credentials to continue</p>
+      </div>
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+       <div><label for="loginId" class="block text-xs font-medium mb-1" style="color: #666;">User ID / Phone</label> <input type="text" id="loginId" required class="w-full px-3 py-2.5 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="Enter your ID or phone number">
+       </div>
+       <div><label for="loginPassword" class="block text-xs font-medium mb-1" style="color: #666;">Password</label>
+        <div class="relative"><input type="password" id="loginPassword" required class="w-full px-3 py-2.5 rounded-lg border text-sm input-focus pr-10" style="border-color: #ddd; background: #FAFAF8;" placeholder="Enter password"> <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2" style="color: #999;" aria-label="Toggle password visibility">
+          <svg width="16" height="16" viewbox="0 0 16 16" fill="none">
+           <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5S1 8 1 8z" stroke="currentColor" stroke-width="1.2" fill="none" /><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2" fill="none" />
+          </svg></button>
+        </div>
+       </div>
+       <div id="loginError" class="text-xs text-center" style="color: #C62828; display:none;"></div><button type="submit" id="loginBtn" class="w-full py-2.5 rounded-lg text-sm font-semibold text-white btn-hover" style="background: var(--primary-color);"> Sign In </button>
+      </form>
+      <div id="forgotPasswordLink" class="text-center mt-4"><button onclick="showForgotPassword()" class="text-xs underline btn-hover" style="color: var(--secondary-color);">Forgot Password?</button>
+      </div>
+      <div class="text-center mt-3"><button onclick="showRegister()" class="text-xs underline btn-hover" style="color: #999;">New user? Register here</button>
+      </div>
+     </div>
+    </main>
+   </div><!-- SCREEN: REGISTER -->
+   <div id="screenRegister" class="h-full flex flex-col" style="display:none;">
+    <header class="px-6 py-4 flex items-center justify-between border-b" style="border-color: #e5e2db; background: var(--surface-color);"><button onclick="showLoginFromRegister()" class="flex items-center gap-2 text-sm btn-hover" style="color: var(--primary-color);" aria-label="Go back to login">
+      <svg width="18" height="18" viewbox="0 0 18 18" fill="none">
+       <path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg> Back to Login </button> <span class="text-sm font-medium" id="registerRoleLabel">Teacher Registration</span>
+     <div style="width:100px;"></div>
+    </header>
+    <main class="flex-1 flex items-center justify-center px-4 py-6 overflow-auto">
+     <div class="bg-white rounded-xl p-8 w-full max-w-md border fade-in" style="border-color: #e5e2db;">
+      <h2 class="heading-font text-xl font-semibold text-center mb-6">Create Account</h2>
+      <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-3">
+       <div class="grid grid-cols-2 gap-3">
+        <div><label for="regName" class="block text-xs font-medium mb-1" style="color: #666;">Full Name</label> <input type="text" id="regName" required class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="Full name">
+        </div>
+        <div><label for="regPhone" class="block text-xs font-medium mb-1" style="color: #666;">Mobile Number</label> <input type="tel" id="regPhone" required class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="10-digit number" pattern="[0-9]{10}">
+        </div>
+       </div>
+       <div id="regSchoolField"><label for="regSchool" class="block text-xs font-medium mb-1" style="color: #666;">School Name</label> <input type="text" id="regSchool" class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="School name">
+       </div>
+       <div id="regDistrictField" style="display:none;"><label for="regDistrict" class="block text-xs font-medium mb-1" style="color: #666;">District</label> <input type="text" id="regDistrict" class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="District name">
+       </div>
+       <div id="regSubjectField"><label for="regSubject" class="block text-xs font-medium mb-1" style="color: #666;">Subject / Department</label> <input type="text" id="regSubject" class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="e.g. Mathematics">
+       </div>
+       <div><label for="regPassword" class="block text-xs font-medium mb-1" style="color: #666;">Password</label> <input type="password" id="regPassword" required class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="Create password" minlength="4">
+       </div>
+       <div id="regError" class="text-xs text-center" style="color: #C62828; display:none;"></div><button type="submit" id="regBtn" class="w-full py-2.5 rounded-lg text-sm font-semibold text-white btn-hover" style="background: var(--primary-color);"> Register </button>
+      </form>
+     </div>
+    </main>
+   </div><!-- SCREEN: FORGOT PASSWORD -->
+   <div id="screenForgot" class="h-full flex flex-col" style="display:none;">
+    <header class="px-6 py-4 flex items-center justify-between border-b" style="border-color: #e5e2db; background: var(--surface-color);"><button onclick="showLoginFromForgot()" class="flex items-center gap-2 text-sm btn-hover" style="color: var(--primary-color);" aria-label="Go back to login">
+      <svg width="18" height="18" viewbox="0 0 18 18" fill="none">
+       <path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg> Back to Login </button> <span class="text-sm font-medium">Reset Password</span>
+     <div style="width:100px;"></div>
+    </header>
+    <main class="flex-1 flex items-center justify-center px-4">
+     <div class="bg-white rounded-xl p-8 w-full max-w-sm border fade-in" style="border-color: #e5e2db;">
+      <h2 class="heading-font text-xl font-semibold text-center mb-2">Reset Password</h2>
+      <p class="text-xs text-center mb-6" style="color: #999;">Verify your registered mobile number</p>
+      <div id="forgotStep1">
+       <form onsubmit="sendOTP(event)" class="space-y-4">
+        <div><label for="forgotPhone" class="block text-xs font-medium mb-1" style="color: #666;">Registered Mobile Number</label> <input type="tel" id="forgotPhone" required class="w-full px-3 py-2.5 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}">
+        </div>
+        <div id="forgotPhoneError" class="text-xs" style="color: #C62828; display:none;"></div><button type="submit" class="w-full py-2.5 rounded-lg text-sm font-semibold text-white btn-hover" style="background: var(--primary-color);"> Send OTP </button>
+       </form>
+      </div>
+      <div id="forgotStep2" style="display:none;">
+       <form onsubmit="verifyOTP(event)" class="space-y-4">
+        <p class="text-xs text-center mb-2" style="color: #5A7D60;">OTP sent to your registered number</p>
+        <div><label for="otpInput" class="block text-xs font-medium mb-1" style="color: #666;">Enter 4-digit OTP</label>
+         <div class="flex gap-2 justify-center"><input type="text" id="otp1" maxlength="1" class="w-12 h-12 text-center text-lg rounded-lg border input-focus" style="border-color: #ddd; background: #FAFAF8;" oninput="otpAutoTab(this, 'otp2')" required> <input type="text" id="otp2" maxlength="1" class="w-12 h-12 text-center text-lg rounded-lg border input-focus" style="border-color: #ddd; background: #FAFAF8;" oninput="otpAutoTab(this, 'otp3')" required> <input type="text" id="otp3" maxlength="1" class="w-12 h-12 text-center text-lg rounded-lg border input-focus" style="border-color: #ddd; background: #FAFAF8;" oninput="otpAutoTab(this, 'otp4')" required> <input type="text" id="otp4" maxlength="1" class="w-12 h-12 text-center text-lg rounded-lg border input-focus" style="border-color: #ddd; background: #FAFAF8;" oninput="otpAutoTab(this, null)" required>
+         </div>
+        </div>
+        <div id="otpError" class="text-xs text-center" style="color: #C62828; display:none;"></div><button type="submit" class="w-full py-2.5 rounded-lg text-sm font-semibold text-white btn-hover" style="background: var(--primary-color);"> Verify OTP </button> <button type="button" onclick="resendOTP()" class="w-full text-xs text-center btn-hover" style="color: #999;" id="resendBtn">Resend OTP</button>
+       </form>
+      </div>
+      <div id="forgotStep3" style="display:none;">
+       <form onsubmit="resetPassword(event)" class="space-y-4">
+        <div><label for="newPassword" class="block text-xs font-medium mb-1" style="color: #666;">New Password</label> <input type="password" id="newPassword" required class="w-full px-3 py-2.5 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="Enter new password" minlength="4">
+        </div>
+        <div><label for="confirmNewPassword" class="block text-xs font-medium mb-1" style="color: #666;">Confirm New Password</label> <input type="password" id="confirmNewPassword" required class="w-full px-3 py-2.5 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="Confirm new password" minlength="4">
+        </div>
+        <div id="resetError" class="text-xs text-center" style="color: #C62828; display:none;"></div><button type="submit" class="w-full py-2.5 rounded-lg text-sm font-semibold text-white btn-hover" style="background: var(--primary-color);"> Reset Password </button>
+       </form>
+      </div>
+     </div>
+    </main>
+   </div><!-- SCREEN: TEACHER DASHBOARD -->
+   <div id="screenTeacher" class="h-full flex flex-col" style="display:none;">
+    <header class="px-6 py-3 flex items-center justify-between border-b no-print" style="border-color: #e5e2db; background: var(--surface-color);">
+     <div class="flex items-center gap-2">
+      <svg width="20" height="20" viewbox="0 0 20 20" fill="none">
+       <circle cx="10" cy="7" r="3" stroke="#5A7D60" stroke-width="1.5" fill="none" /><path d="M5 17c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="#5A7D60" stroke-width="1.5" fill="none" stroke-linecap="round" />
+      </svg><span class="text-sm font-medium" id="teacherWelcome">Welcome, Teacher</span>
+     </div>
+     <div class="flex items-center gap-3"><span class="text-xs" style="color: #999;" id="teacherDate"></span> <button onclick="logout()" class="text-xs px-3 py-1.5 rounded-lg border btn-hover" style="border-color: #ddd;">Logout</button>
+     </div>
+    </header>
+    <div class="flex border-b no-print" style="border-color: #e5e2db; background: var(--surface-color);"><button class="tab-item active" onclick="switchTeacherTab('mark', this)">Mark Attendance</button> <button class="tab-item" onclick="switchTeacherTab('history', this)">History</button> <button class="tab-item" onclick="switchTeacherTab('students', this)">Students</button>
+    </div>
+    <main class="flex-1 overflow-auto px-4 py-5" id="teacherContent">
+     <div id="teacherTabMark" class="max-w-3xl mx-auto">
+      <div class="flex flex-wrap items-end gap-3 mb-5 fade-in">
+       <div><label for="attClass" class="block text-xs font-medium mb-1" style="color: #666;">Class</label> <select id="attClass" class="px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;"> <option value="">Select Class</option> <option value="1">Class 1</option> <option value="2">Class 2</option> <option value="3">Class 3</option> <option value="4">Class 4</option> <option value="5">Class 5</option> <option value="6">Class 6</option> <option value="7">Class 7</option> <option value="8">Class 8</option> <option value="9">Class 9</option> <option value="10">Class 10</option> </select>
+       </div>
+       <div><label for="attDate" class="block text-xs font-medium mb-1" style="color: #666;">Date</label> <input type="date" id="attDate" class="px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;">
+       </div><button onclick="loadStudentsForAttendance()" class="px-4 py-2 rounded-lg text-sm font-medium text-white btn-hover" style="background: var(--primary-color);">Load Students</button>
+      </div>
+      <div id="attendanceList" class="space-y-2">
+       <div class="text-center py-8 text-sm" style="color: #bbb;">
+        Select a class and date, then click "Load Students"
+       </div>
+      </div>
+      <div id="attendanceActions" style="display:none;" class="mt-4 flex gap-3 items-center"><button onclick="submitAttendance()" id="submitAttBtn" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-white btn-hover" style="background: var(--primary-color);">Submit Attendance</button> <button onclick="markAllPresent()" class="px-4 py-2 rounded-lg text-sm border btn-hover" style="border-color: #ddd;">Mark All Present</button> <span class="text-xs ml-auto" style="color: #999;" id="attSummary"></span>
+      </div>
+     </div>
+     <div id="teacherTabHistory" class="max-w-3xl mx-auto" style="display:none;">
+      <h3 class="heading-font text-lg font-semibold mb-4 fade-in">Attendance History</h3>
+      <div id="historyList" class="space-y-3">
+       <div class="text-center py-8 text-sm" style="color: #bbb;">
+        No attendance records yet
+       </div>
+      </div>
+     </div>
+     <div id="teacherTabStudents" class="max-w-3xl mx-auto" style="display:none;">
+      <div class="flex items-center justify-between mb-4 fade-in">
+       <h3 class="heading-font text-lg font-semibold">Manage Students</h3><button onclick="showAddStudentForm()" class="px-4 py-2 rounded-lg text-sm font-medium text-white btn-hover" style="background: var(--primary-color);">+ Add Student</button>
+      </div>
+      <div id="addStudentFormContainer" style="display:none;" class="bg-white rounded-xl p-5 border mb-4 fade-in">
+       <form onsubmit="addStudent(event)" class="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
+        <div><label for="stuName" class="block text-xs font-medium mb-1" style="color: #666;">Student Name</label> <input type="text" id="stuName" required class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="Full name">
+        </div>
+        <div><label for="stuRoll" class="block text-xs font-medium mb-1" style="color: #666;">Roll No</label> <input type="text" id="stuRoll" required class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="e.g. 01">
+        </div>
+        <div><label for="stuClass" class="block text-xs font-medium mb-1" style="color: #666;">Class</label> <select id="stuClass" required class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;"> <option value="">Select</option> <option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option><option value="4">Class 4</option><option value="5">Class 5</option> <option value="6">Class 6</option><option value="7">Class 7</option><option value="8">Class 8</option><option value="9">Class 9</option><option value="10">Class 10</option> </select>
+        </div>
+        <div><label for="stuParentPhone" class="block text-xs font-medium mb-1" style="color: #666;">Parent Phone</label> <input type="tel" id="stuParentPhone" class="w-full px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;" placeholder="Optional" pattern="[0-9]{10}">
+        </div>
+        <div class="col-span-2 sm:col-span-4 flex gap-2"><button type="submit" class="px-4 py-2 rounded-lg text-sm font-medium text-white btn-hover" style="background: var(--primary-color);">Save Student</button> <button type="button" onclick="hideAddStudentForm()" class="px-4 py-2 rounded-lg text-sm border btn-hover" style="border-color: #ddd;">Cancel</button>
+        </div>
+       </form>
+      </div>
+      <div id="studentList" class="space-y-2">
+       <div class="text-center py-8 text-sm" style="color: #bbb;">
+        No students added yet
+       </div>
+      </div>
+     </div>
+    </main>
+   </div><!-- SCREEN: PRINCIPAL DASHBOARD -->
+   <div id="screenPrincipal" class="h-full flex flex-col" style="display:none;">
+    <header class="px-6 py-3 flex items-center justify-between border-b no-print" style="border-color: #e5e2db; background: var(--surface-color);">
+     <div class="flex items-center gap-2">
+      <svg width="20" height="20" viewbox="0 0 20 20" fill="none">
+       <circle cx="10" cy="7" r="3" stroke="#8B7355" stroke-width="1.5" fill="none" /><path d="M5 17c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="#8B7355" stroke-width="1.5" fill="none" stroke-linecap="round" /><path d="M8 4l2-2 2 2" stroke="#8B7355" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+      </svg><span class="text-sm font-medium" id="principalWelcome">Welcome, Principal</span>
+     </div>
+     <div class="flex items-center gap-3"><span class="text-xs" style="color: #999;" id="principalDate"></span> <button onclick="logout()" class="text-xs px-3 py-1.5 rounded-lg border btn-hover" style="border-color: #ddd;">Logout</button>
+     </div>
+    </header>
+    <div class="flex border-b no-print" style="border-color: #e5e2db; background: var(--surface-color);"><button class="tab-item active" onclick="switchPrincipalTab('overview', this)">Overview</button> <button class="tab-item" onclick="switchPrincipalTab('reports', this)">Reports</button> <button class="tab-item" onclick="switchPrincipalTab('sync', this)">Sync Status</button> <button class="tab-item" onclick="switchPrincipalTab('sms', this)">SMS Alerts</button>
+    </div>
+    <main class="flex-1 overflow-auto px-4 py-5" id="principalContent">
+     <div id="principalTabOverview" class="max-w-4xl mx-auto">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+       <div class="bg-white rounded-xl p-4 border hover-lift fade-in stagger-1" style="border-color: #e5e2db;">
+        <p class="text-xs" style="color: #999;">Total Students</p>
+        <p class="text-2xl font-bold mt-1" id="pTotalStudents">0</p>
+       </div>
+       <div class="bg-white rounded-xl p-4 border hover-lift fade-in stagger-2" style="border-color: #e5e2db;">
+        <p class="text-xs" style="color: #999;">Today Present</p>
+        <p class="text-2xl font-bold mt-1" style="color: #2E7D32;" id="pTodayPresent">0</p>
+       </div>
+       <div class="bg-white rounded-xl p-4 border hover-lift fade-in stagger-3" style="border-color: #e5e2db;">
+        <p class="text-xs" style="color: #999;">Today Absent</p>
+        <p class="text-2xl font-bold mt-1" style="color: #C62828;" id="pTodayAbsent">0</p>
+       </div>
+       <div class="bg-white rounded-xl p-4 border hover-lift fade-in stagger-4" style="border-color: #e5e2db;">
+        <p class="text-xs" style="color: #999;">Attendance Rate</p>
+        <p class="text-2xl font-bold mt-1" style="color: var(--primary-color);" id="pAttRate">0%</p>
+       </div>
+      </div>
+      <div class="bg-white rounded-xl p-5 border" style="border-color: #e5e2db;">
+       <h3 class="heading-font text-base font-semibold mb-3">Recent Attendance Records</h3>
+       <div id="principalRecentRecords" class="overflow-auto">
+        <table class="att-table">
+         <thead>
+          <tr>
+           <th>Date</th>
+           <th>Class</th>
+           <th>Present</th>
+           <th>Absent</th>
+           <th>Late</th>
+           <th>Status</th>
+          </tr>
+         </thead>
+         <tbody id="principalRecordsBody">
+          <tr>
+           <td colspan="6" class="text-center py-6 text-sm" style="color: #bbb;">No records available</td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div>
+     <div id="principalTabReports" class="max-w-4xl mx-auto" style="display:none;">
+      <h3 class="heading-font text-lg font-semibold mb-4 fade-in">Attendance Reports</h3>
+      <div class="flex flex-wrap gap-3 mb-5">
+       <div><label for="reportClass" class="block text-xs font-medium mb-1" style="color: #666;">Class</label> <select id="reportClass" class="px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;"> <option value="all">All Classes</option> <option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option><option value="4">Class 4</option><option value="5">Class 5</option> <option value="6">Class 6</option><option value="7">Class 7</option><option value="8">Class 8</option><option value="9">Class 9</option><option value="10">Class 10</option> </select>
+       </div>
+       <div><label for="reportFrom" class="block text-xs font-medium mb-1" style="color: #666;">From</label> <input type="date" id="reportFrom" class="px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;">
+       </div>
+       <div><label for="reportTo" class="block text-xs font-medium mb-1" style="color: #666;">To</label> <input type="date" id="reportTo" class="px-3 py-2 rounded-lg border text-sm input-focus" style="border-color: #ddd; background: #FAFAF8;">
+       </div>
+       <div class="flex items-end"><button onclick="generateReport()" class="px-4 py-2 rounded-lg text-sm font-medium text-white btn-hover" style="background: var(--primary-color);">Generate</button>
+       </div>
+      </div>
+      <div id="reportResults" class="bg-white rounded-xl p-5 border" style="border-color: #e5e2db;">
+       <div class="text-center py-8 text-sm" style="color: #bbb;">
+        Select filters and generate a report
+       </div>
+      </div>
+     </div>
+     <div id="principalTabSync" class="max-w-3xl mx-auto" style="display:none;">
+      <h3 class="heading-font text-lg font-semibold mb-4 fade-in">Sync Status</h3>
+      <div class="bg-white rounded-xl p-5 border mb-4" style="border-color: #e5e2db;">
+       <div class="flex items-center justify-between mb-3">
+        <div>
+         <p class="text-sm font-medium">Connection Status</p>
+         <p class="text-xs" style="color: #999;" id="syncConnectionText">Online - Data syncing automatically</p>
+        </div>
+        <div class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded-full" id="syncDot" style="background: #4CAF50;"></span> <span class="text-sm font-medium" id="syncStatusLabel">Connected</span>
+        </div>
+       </div>
+       <div class="flex gap-3"><button onclick="simulateSync()" class="px-4 py-2 rounded-lg text-sm font-medium text-white btn-hover" style="background: var(--primary-color);">Sync Now</button> <button onclick="toggleOfflineMode()" class="px-4 py-2 rounded-lg text-sm border btn-hover" style="border-color: #ddd;" id="offlineToggleBtn">Simulate Offline</button>
+       </div>
+      </div>
+      <div id="syncLog" class="space-y-2">
+       <div class="text-center py-4 text-sm" style="color: #bbb;">
+        No sync activity yet
+       </div>
+      </div>
+     </div>
+     <div id="principalTabSms" class="max-w-3xl mx-auto" style="display:none;">
+      <h3 class="heading-font text-lg font-semibold mb-4 fade-in">SMS Notification Settings</h3>
+      <div class="bg-white rounded-xl p-5 border mb-4" style="border-color: #e5e2db;">
+       <div class="space-y-4">
+        <div class="flex items-center justify-between">
+         <div>
+          <p class="text-sm font-medium">Auto-notify on Absence</p>
+          <p class="text-xs" style="color: #999;">Send SMS to parents when student is absent</p>
+         </div><label class="relative inline-flex cursor-pointer"> <input type="checkbox" id="smsAutoNotify" class="sr-only peer" checked>
+          <div class="w-10 h-5 bg-gray-200 peer-checked:bg-green-500 rounded-full transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-transform peer-checked:after:translate-x-5"></div></label>
+        </div>
+        <div class="flex items-center justify-between">
+         <div>
+          <p class="text-sm font-medium">Weekly Summary to Parents</p>
+          <p class="text-xs" style="color: #999;">Send weekly attendance summary every Friday</p>
+         </div><label class="relative inline-flex cursor-pointer"> <input type="checkbox" id="smsWeekly" class="sr-only peer">
+          <div class="w-10 h-5 bg-gray-200 peer-checked:bg-green-500 rounded-full transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-transform peer-checked:after:translate-x-5"></div></label>
+        </div>
+        <div class="flex items-center justify-between">
+         <div>
+          <p class="text-sm font-medium">Late Arrival Notification</p>
+          <p class="text-xs" style="color: #999;">Notify parents when student arrives late</p>
+         </div><label class="relative inline-flex cursor-pointer"> <input type="checkbox" id="smsLate" class="sr-only peer">
+          <div class="w-10 h-5 bg-gray-200 peer-checked:bg-green-500 rounded-full transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-transform peer-checked:after:translate-x-5"></div></label>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-xl p-5 border" style="border-color: #e5e2db;">
+       <h4 class="text-sm font-semibold mb-3">SMS Preview</h4>
+       <div class="p-3 rounded-lg text-xs" style="background: #FAFAF8; border: 1px dashed #ddd; color: #666;">
+        <p><strong>To:</strong> Parent of [Student Name]</p>
+        <p class="mt-1"><strong>Message:</strong> Dear Parent, your child [Student Name] (Class [X], Roll [Y]) was marked absent on [Date] at [School Name]. Please contact the school for more information. - School Administration</p>
+       </div>
+       <p class="text-xs mt-2" style="color: #999;">⚠ SMS integration requires a gateway service (demo mode)</p>
+      </div>
+     </div>
+    </main>
+   </div>
+   <!-- SCREEN: GOVERNMENT DASHBOARD -->
+   <div id="screenGovernment" class="h-full flex flex-col" style="display:none;">
+    <header class="px-6 py-3 flex items-center justify-between border-b no-print" style="border-color: #e5e2db; background: var(--surface-color);">
+     <div class="flex items-center gap-2">
+      <svg width="20" height="20" viewbox="0 0 20 20" fill="none">
+       <rect x="4" y="9" width="12" height="8" rx="1" stroke="#5A7D60" stroke-width="1.5" fill="none" /><path d="M10 4L4 9h12L10 4z" stroke="#5A7D60" stroke-width="1.5" fill="none" stroke-linejoin="round" />
+      </svg><span class="text-sm font-medium" id="govWelcome">Welcome, Government Official</span>
+     </div>
+     <div class="flex items-center gap-3"><span class="text-xs" style="color: #999;" id="govDate"></span> <button onclick="logout()" class="text-xs px-3 py-1.5 rounded-lg border btn-hover" style="border-color: #ddd;">Logout</button>
+     </div>
+    </header>
+    <div class="flex border-b no-print" style="border-color: #e5e2db; background: var(--surface-color);"><button class="tab-item active" onclick="switchGovTab('district', this)">District Overview</button> <button class="tab-item" onclick="switchGovTab('schools', this)">Schools</button> <button class="tab-item" onclick="switchGovTab('analytics', this)">Analytics</button>
+    </div>
+    <main class="flex-1 overflow-auto px-4 py-5">
+     <div id="govTabDistrict" class="max-w-4xl mx-auto">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+       <div class="bg-white rounded-xl p-4 border hover-lift fade-in stagger-1" style="border-color: #e5e2db;">
+        <p class="text-xs" style="color: #999;">Total Schools</p>
+        <p class="text-2xl font-bold mt-1" id="gTotalSchools">0</p>
+       </div>
+       <div class="bg-white rounded-xl p-4 border hover-lift fade-in stagger-2" style="border-color: #e5e2db;">
+        <p class="text-xs" style="color: #999;">Total Students</p>
+        <p class="text-2xl font-bold mt-1" id="gTotalStudents">0</p>
+       </div>
+       <div class="bg-white rounded-xl p-4 border hover-lift fade-in stagger-3" style="border-color: #e5e2db;">
+        <p class="text-xs" style="color: #999;">Avg Attendance</p>
+        <p class="text-2xl font-bold mt-1" style="color: var(--primary-color);" id="gAvgAtt">0%</p>
+       </div>
+       <div class="bg-white rounded-xl p-4 border hover-lift fade-in stagger-4" style="border-color: #e5e2db;">
+        <p class="text-xs" style="color: #999;">Schools Offline</p>
+        <p class="text-2xl font-bold mt-1" style="color: #E65100;" id="gOfflineSchools">0</p>
+       </div>
+      </div>
+      <div class="bg-white rounded-xl p-5 border" style="border-color: #e5e2db;">
+       <h3 class="heading-font text-base font-semibold mb-3">District Attendance Summary</h3>
+       <div id="govDistrictChart" class="space-y-3">
+        <div class="text-center py-6 text-sm" style="color: #bbb;">
+         Data will appear as schools submit attendance
+        </div>
+       </div>
+      </div>
+     </div>
+     <div id="govTabSchools" class="max-w-4xl mx-auto" style="display:none;">
+      <h3 class="heading-font text-lg font-semibold mb-4 fade-in">Registered Schools</h3>
+      <div id="govSchoolList" class="space-y-3">
+       <div class="text-center py-8 text-sm" style="color: #bbb;">
+        No schools registered yet
+       </div>
+      </div>
+     </div>
+     <div id="govTabAnalytics" class="max-w-4xl mx-auto" style="display:none;">
+      <h3 class="heading-font text-lg font-semibold mb-4 fade-in">Attendance Analytics</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+       <div class="bg-white rounded-xl p-5 border" style="border-color: #e5e2db;">
+        <h4 class="text-sm font-semibold mb-3">Attendance Trend (This Week)</h4>
+        <div id="govTrendChart" class="space-y-2"></div>
+       </div>
+       <div class="bg-white rounded-xl p-5 border" style="border-color: #e5e2db;">
+        <h4 class="text-sm font-semibold mb-3">Class-wise Attendance</h4>
+        <div id="govClassChart" class="space-y-2"></div>
+       </div>
+      </div>
+     </div>
+    </main>
+   </div>
+  </div>
+
+
+  <script>
+    let allData = [];
+    let currentRole = '';
+    let currentUser = null;
+    let isOfflineMode = false;
+    let generatedOTP = '';
+    let forgotPhoneNumber = '';
+    let syncLogs = [];
+    let attendanceMarking = {};
+
+    const defaultConfig = {
+      app_title: 'Rural School Attendance',
+      school_name: 'Government Primary School',
+      footer_text: 'Designed for low-resource rural environments • Offline-first approach',
+      background_color: '#F7F5F0',
+      surface_color: '#FFFFFF',
+      text_color: '#2C2C2C',
+      primary_color: '#5A7D60',
+      secondary_color: '#8B7355',
+      font_family: 'Source Sans 3',
+      font_size: 14
+    };
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function showConfirm(message, onConfirm) {
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop';
+      backdrop.innerHTML = `
+        <div class="modal-box">
+          <p class="text-sm mb-5" style="color: var(--text-color);">${message}</p>
+          <div class="flex gap-3 justify-end">
+            <button class="px-4 py-2 rounded-lg text-sm border btn-hover cancel-btn" style="border-color: #ddd;">Cancel</button>
+            <button class="px-4 py-2 rounded-lg text-sm font-medium text-white btn-hover confirm-btn" style="background: var(--primary-color);">Confirm</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(backdrop);
+      backdrop.querySelector('.cancel-btn').onclick = () => backdrop.remove();
+      backdrop.querySelector('.confirm-btn').onclick = () => {
+        backdrop.remove();
+        onConfirm();
+      };
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) backdrop.remove();
+      });
+    }
+
+    function hideAllScreens() {
+      ['screenRoleSelect', 'screenLogin', 'screenForgot', 'screenRegister', 'screenTeacher', 'screenPrincipal', 'screenGovernment'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
+    }
+
+    function showScreen(id) {
+      hideAllScreens();
+      const el = document.getElementById(id);
+      el.style.display = 'flex';
+      el.classList.add('fade-in');
+    }
+
+    function goToRoleSelect() {
+      showScreen('screenRoleSelect');
+    }
+
+    function showLogin(role) {
+      currentRole = role;
+      showScreen('screenLogin');
+
+      const labels = { teacher: 'Teacher Login', principal: 'Principal Login', government: 'Government Login' };
+      document.getElementById('loginRoleLabel').textContent = labels[role];
+      document.getElementById('loginTitle').textContent = labels[role];
+
+      const subtitles = { teacher: 'Enter your credentials to continue', principal: 'School administration access', government: 'District-level official access' };
+      document.getElementById('loginSubtitle').textContent = subtitles[role];
+
+      document.getElementById('forgotPasswordLink').style.display = (role === 'government') ? 'none' : 'block';
+
+      document.getElementById('loginId').value = '';
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('loginError').style.display = 'none';
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const userId = document.getElementById('loginId').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      const users = allData.filter(d => d.user_type === 'user' && d.user_role === currentRole);
+      const matchedUser = users.find(u => (u.user_phone === userId || u.user_name === userId) && u.user_password === password);
+
+      if (matchedUser) {
+        currentUser = matchedUser;
+        loginSuccess();
+      } else {
+        const errorEl = document.getElementById('loginError');
+        errorEl.textContent = 'Invalid credentials. Please check your ID and password.';
+        errorEl.style.display = 'block';
+      }
+    }
+
+    function loginSuccess() {
+      const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+
+      if (currentRole === 'teacher') {
+        document.getElementById('teacherWelcome').textContent = `Welcome, ${currentUser.user_name}`;
+        document.getElementById('teacherDate').textContent = today;
+        document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
+        showScreen('screenTeacher');
+        refreshTeacherData();
+      } else if (currentRole === 'principal') {
+        document.getElementById('principalWelcome').textContent = `Welcome, ${currentUser.user_name}`;
+        document.getElementById('principalDate').textContent = today;
+        showScreen('screenPrincipal');
+        refreshPrincipalData();
+      } else if (currentRole === 'government') {
+        document.getElementById('govWelcome').textContent = `Welcome, ${currentUser.user_name}`;
+        document.getElementById('govDate').textContent = today;
+        showScreen('screenGovernment');
+        refreshGovData();
+      }
+
+      showToast(`Logged in as ${currentUser.user_name}`, 'success');
+    }
+
+    function logout() {
+      showConfirm('Are you sure you want to logout?', () => {
+        currentUser = null;
+        currentRole = '';
+        showScreen('screenRoleSelect');
+        showToast('Logged out successfully', 'info');
+      });
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.style.color = 'var(--primary-color)';
+      } else {
+        input.type = 'password';
+        btn.style.color = '#999';
+      }
+    }
+
+    function showRegister() {
+      showScreen('screenRegister');
+      const labels = { teacher: 'Teacher Registration', principal: 'Principal Registration', government: 'Government Registration' };
+      document.getElementById('registerRoleLabel').textContent = labels[currentRole];
+
+      document.getElementById('regSchoolField').style.display = (currentRole === 'government') ? 'none' : 'block';
+      document.getElementById('regDistrictField').style.display = (currentRole === 'government') ? 'block' : 'none';
+      document.getElementById('regSubjectField').style.display = (currentRole === 'teacher') ? 'block' : 'none';
+
+      document.getElementById('registerForm').reset();
+      document.getElementById('regError').style.display = 'none';
+    }
+
+    function showLoginFromRegister() {
+      showLogin(currentRole);
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('regName').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const school = document.getElementById('regSchool').value.trim();
+      const district = document.getElementById('regDistrict').value.trim();
+      const subject = document.getElementById('regSubject').value.trim();
+
+      const existing = allData.find(d => d.user_type === 'user' && d.user_role === currentRole && d.user_phone === phone);
+      if (existing) {
+        const errEl = document.getElementById('regError');
+        errEl.textContent = 'This mobile number is already registered for this role.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      if (allData.length >= 999) {
+        showToast('Data limit reached. Please contact administrator.', 'error');
+        return;
+      }
+
+      const regBtn = document.getElementById('regBtn');
+      regBtn.disabled = true;
+      regBtn.textContent = 'Registering...';
+
+      const userData = {
+        user_type: 'user',
+        user_name: name,
+        user_role: currentRole,
+        user_phone: phone,
+        user_password: password,
+        user_school: school || '',
+        subject_name: subject || '',
+        district_name: district || '',
+        student_class: '',
+        student_name: '',
+        student_roll: '',
+        record_status: 'active',
+        record_date: new Date().toISOString().split('T')[0],
+        parent_phone: '',
+        synced: !isOfflineMode,
+        created_at: new Date().toISOString()
+      };
+
+      const result = await window.dataSdk.create(userData);
+      regBtn.disabled = false;
+      regBtn.textContent = 'Register';
+
+      if (result.isOk) {
+        showToast('Registration successful! Please login.', 'success');
+        showLogin(currentRole);
+      } else {
+        showToast('Registration failed. Please try again.', 'error');
+      }
+    }
+
+    function showForgotPassword() {
+      showScreen('screenForgot');
+      document.getElementById('forgotStep1').style.display = 'block';
+      document.getElementById('forgotStep2').style.display = 'none';
+      document.getElementById('forgotStep3').style.display = 'none';
+      document.getElementById('forgotPhone').value = '';
+      document.getElementById('forgotPhoneError').style.display = 'none';
+    }
+
+    function showLoginFromForgot() {
+      showLogin(currentRole);
+    }
+
+    function sendOTP(e) {
+      e.preventDefault();
+      const phone = document.getElementById('forgotPhone').value.trim();
+
+      const user = allData.find(d => d.user_type === 'user' && d.user_role === currentRole && d.user_phone === phone);
+      if (!user) {
+        const errEl = document.getElementById('forgotPhoneError');
+        errEl.textContent = 'No account found with this mobile number for ' + currentRole + '.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      forgotPhoneNumber = phone;
+      generatedOTP = String(Math.floor(1000 + Math.random() * 9000));
+      showToast(`OTP sent: ${generatedOTP} (demo mode)`, 'info');
+
+      document.getElementById('forgotStep1').style.display = 'none';
+      document.getElementById('forgotStep2').style.display = 'block';
+
+      for (let i = 1; i <= 4; i++) document.getElementById('otp' + i).value = '';
+      document.getElementById('otp1').focus();
+      document.getElementById('otpError').style.display = 'none';
+    }
+
+    function otpAutoTab(current, nextId) {
+      if (current.value.length === 1 && nextId) {
+        document.getElementById(nextId).focus();
+      }
+    }
+
+    function verifyOTP(e) {
+      e.preventDefault();
+      const entered = document.getElementById('otp1').value + document.getElementById('otp2').value + document.getElementById('otp3').value + document.getElementById('otp4').value;
+
+      if (entered === generatedOTP) {
+        document.getElementById('forgotStep2').style.display = 'none';
+        document.getElementById('forgotStep3').style.display = 'block';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmNewPassword').value = '';
+        document.getElementById('resetError').style.display = 'none';
+      } else {
+        const errEl = document.getElementById('otpError');
+        errEl.textContent = 'Invalid OTP. Please try again.';
+        errEl.style.display = 'block';
+      }
+    }
+
+    function resendOTP() {
+      generatedOTP = String(Math.floor(1000 + Math.random() * 9000));
+      showToast(`New OTP sent: ${generatedOTP} (demo mode)`, 'info');
+      for (let i = 1; i <= 4; i++) document.getElementById('otp' + i).value = '';
+      document.getElementById('otp1').focus();
+    }
+
+    async function resetPassword(e) {
+      e.preventDefault();
+      const newPass = document.getElementById('newPassword').value;
+      const confirmPass = document.getElementById('confirmNewPassword').value;
+
+      if (newPass !== confirmPass) {
+        const errEl = document.getElementById('resetError');
+        errEl.textContent = 'Passwords do not match.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const user = allData.find(d => d.user_type === 'user' && d.user_role === currentRole && d.user_phone === forgotPhoneNumber);
+      if (user) {
+        const updated = { ...user, user_password: newPass };
+        const result = await window.dataSdk.update(updated);
+        if (result.isOk) {
+          showToast('Password reset successfully! Please login.', 'success');
+          showLogin(currentRole);
+        } else {
+          showToast('Failed to reset password. Try again.', 'error');
+        }
+      }
+    }
+
+    function loadStudentsForAttendance() {
+      const className = document.getElementById('attClass').value;
+      const date = document.getElementById('attDate').value;
+
+      if (!className || !date) {
+        showToast('Please select both class and date', 'error');
+        return;
+      }
+
+      const students = allData.filter(d => d.user_type === 'student' && d.student_class === className);
+
+      if (students.length === 0) {
+        document.getElementById('attendanceList').innerHTML = '<div class="text-center py-8 text-sm" style="color: #bbb;">No students found for Class ' + className + '. Add students first.</div>';
+        document.getElementById('attendanceActions').style.display = 'none';
+        return;
+      }
+
+      const existingAtt = allData.filter(d => d.user_type === 'attendance' && d.student_class === className && d.record_date === date);
+
+      attendanceMarking = {};
+      let html = '';
+      students.sort((a, b) => (a.student_roll || '').localeCompare(b.student_roll || '', undefined, { numeric: true }));
+
+      students.forEach((s, idx) => {
+        const existing = existingAtt.find(a => a.student_roll === s.student_roll);
+        const status = existing ? existing.record_status : 'present';
+        attendanceMarking[s.student_roll] = status;
+
+        html += `
+          <div class="bg-white rounded-lg p-3 border flex items-center justify-between hover-scale slide-in-right" style="border-color: #e5e2db; animation-delay: ${idx * 0.03}s;" data-roll="${s.student_roll}">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-mono px-2 py-1 rounded" style="background: #f5f3ee; color: #888;">R${s.student_roll}</span>
+              <span class="text-sm font-medium">${s.student_name}</span>
+            </div>
+            <div class="flex gap-1">
+              <button onclick="setAttStatus('${s.student_roll}', 'present', this)" class="px-3 py-1 rounded-md text-xs font-medium btn-hover att-btn-${s.student_roll}" style="${status === 'present' ? 'background: #E8F5E9; color: #2E7D32;' : 'background: #f5f3ee; color: #999;'}">Present</button>
+              <button onclick="setAttStatus('${s.student_roll}', 'absent', this)" class="px-3 py-1 rounded-md text-xs font-medium btn-hover att-btn-${s.student_roll}" style="${status === 'absent' ? 'background: #FFEBEE; color: #C62828;' : 'background: #f5f3ee; color: #999;'}">Absent</button>
+              <button onclick="setAttStatus('${s.student_roll}', 'late', this)" class="px-3 py-1 rounded-md text-xs font-medium btn-hover att-btn-${s.student_roll}" style="${status === 'late' ? 'background: #FFF3E0; color: #E65100;' : 'background: #f5f3ee; color: #999;'}">Late</button>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('attendanceList').innerHTML = html;
+      document.getElementById('attendanceActions').style.display = 'flex';
+      updateAttSummary();
+    }
+
+    function setAttStatus(rollNo, status, btn) {
+      attendanceMarking[rollNo] = status;
+
+      const buttons = document.querySelectorAll(`.att-btn-${rollNo}`);
+      buttons.forEach(b => {
+        b.style.background = '#f5f3ee';
+        b.style.color = '#999';
+      });
+
+      const colors = {
+        present: { bg: '#E8F5E9', color: '#2E7D32' },
+        absent: { bg: '#FFEBEE', color: '#C62828' },
+        late: { bg: '#FFF3E0', color: '#E65100' }
+      };
+      btn.style.background = colors[status].bg;
+      btn.style.color = colors[status].color;
+      updateAttSummary();
+    }
+
+    function markAllPresent() {
+      Object.keys(attendanceMarking).forEach(rollNo => {
+        attendanceMarking[rollNo] = 'present';
+        const buttons = document.querySelectorAll(`.att-btn-${rollNo}`);
+        buttons.forEach(b => {
+          b.style.background = '#f5f3ee';
+          b.style.color = '#999';
+        });
+        if (buttons[0]) {
+          buttons[0].style.background = '#E8F5E9';
+          buttons[0].style.color = '#2E7D32';
+        }
+      });
+      updateAttSummary();
+    }
+
+    function updateAttSummary() {
+      const vals = Object.values(attendanceMarking);
+      const present = vals.filter(v => v === 'present').length;
+      const absent = vals.filter(v => v === 'absent').length;
+      const late = vals.filter(v => v === 'late').length;
+      document.getElementById('attSummary').textContent = `Present: ${present} | Absent: ${absent} | Late: ${late} | Total: ${vals.length}`;
+    }
+
+    async function submitAttendance() {
+      const className = document.getElementById('attClass').value;
+      const date = document.getElementById('attDate').value;
+
+      if (Object.keys(attendanceMarking).length === 0) {
+        showToast('No students to submit', 'error');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitAttBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      const existingAtt = allData.filter(d => d.user_type === 'attendance' && d.student_class === className && d.record_date === date);
+      for (const rec of existingAtt) {
+        await window.dataSdk.delete(rec);
+      }
+
+      let success = true;
+      for (const [rollNo, status] of Object.entries(attendanceMarking)) {
+        if (allData.length >= 999) {
+          showToast('Data limit reached. Cannot save more records.', 'error');
+          success = false;
+          break;
+        }
+
+        const student = allData.find(d => d.user_type === 'student' && d.student_class === className && d.student_roll === rollNo);
+
+        const record = {
+          user_type: 'attendance',
+          user_name: student ? student.student_name : '',
+          user_role: '',
+          user_phone: '',
+          user_password: '',
+          user_school: currentUser ? currentUser.user_school : '',
+          student_class: className,
+          student_name: student ? student.student_name : '',
+          student_roll: rollNo,
+          record_status: status,
+          record_date: date,
+          parent_phone: student ? (student.parent_phone || '') : '',
+          synced: !isOfflineMode,
+          created_at: new Date().toISOString(),
+          subject_name: '',
+          district_name: ''
+        };
+
+        const result = await window.dataSdk.create(record);
+        if (!result.isOk) success = false;
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Attendance';
+
+      if (success) {
+        showToast(`Attendance submitted for Class ${className}${isOfflineMode ? ' (will sync when online)' : ''}`, 'success');
+        addSyncLog(`Attendance submitted: Class ${className}, ${date}`, !isOfflineMode);
+      } else {
+        showToast('Some records failed to save', 'error');
+      }
+    }
+
+    function showAddStudentForm() {
+      document.getElementById('addStudentFormContainer').style.display = 'block';
+    }
+
+    function hideAddStudentForm() {
+      document.getElementById('addStudentFormContainer').style.display = 'none';
+    }
+
+    async function addStudent(e) {
+      e.preventDefault();
+
+      if (allData.length >= 999) {
+        showToast('Data limit reached. Cannot add more students.', 'error');
+        return;
+      }
+
+      const name = document.getElementById('stuName').value.trim();
+      const rollNo = document.getElementById('stuRoll').value.trim();
+      const className = document.getElementById('stuClass').value;
+      const parentPhone = document.getElementById('stuParentPhone').value.trim();
+
+      const exists = allData.find(d => d.user_type === 'student' && d.student_class === className && d.student_roll === rollNo);
+      if (exists) {
+        showToast('A student with this roll number already exists in this class', 'error');
+        return;
+      }
+
+      const studentData = {
+        user_type: 'student',
+        user_name: '',
+        user_role: '',
+        user_phone: '',
+        user_password: '',
+        user_school: currentUser ? currentUser.user_school : '',
+        student_class: className,
+        student_name: name,
+        student_roll: rollNo,
+        record_status: 'active',
+        record_date: new Date().toISOString().split('T')[0],
+        parent_phone: parentPhone,
+        synced: !isOfflineMode,
+        created_at: new Date().toISOString(),
+        subject_name: '',
+        district_name: ''
+      };
+
+      const result = await window.dataSdk.create(studentData);
+      if (result.isOk) {
+        showToast(`Student ${name} added successfully`, 'success');
+        document.getElementById('stuName').value = '';
+        document.getElementById('stuRoll').value = '';
+        document.getElementById('stuParentPhone').value = '';
+        hideAddStudentForm();
+      } else {
+        showToast('Failed to add student', 'error');
+      }
+    }
+
+    async function deleteStudent(backendId) {
+      const student = allData.find(d => d.__backendId === backendId);
+      if (!student) return;
+
+      showConfirm(`Delete student "${student.student_name}" from Class ${student.student_class}?`, async () => {
+        const result = await window.dataSdk.delete(student);
+        if (result.isOk) {
+          showToast('Student removed', 'info');
+        } else {
+          showToast('Failed to delete student', 'error');
+        }
+      });
+    }
+
+    function switchTeacherTab(tab, btn) {
+      ['teacherTabMark', 'teacherTabHistory', 'teacherTabStudents'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
+      document.querySelectorAll('#screenTeacher .tab-item').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      if (tab === 'mark') document.getElementById('teacherTabMark').style.display = 'block';
+      else if (tab === 'history') {
+        document.getElementById('teacherTabHistory').style.display = 'block';
+        renderHistory();
+      }
+      else if (tab === 'students') {
+        document.getElementById('teacherTabStudents').style.display = 'block';
+        renderStudentList();
+      }
+    }
+
+    function renderHistory() {
+      const records = allData.filter(d => d.user_type === 'attendance');
+      const groups = {};
+      records.forEach(r => {
+        const key = `${r.record_date}|${r.student_class}`;
+        if (!groups[key]) groups[key] = { date: r.record_date, class_name: r.student_class, present: 0, absent: 0, late: 0, synced: true };
+        if (r.record_status === 'present') groups[key].present++;
+        else if (r.record_status === 'absent') groups[key].absent++;
+        else if (r.record_status === 'late') groups[key].late++;
+        if (!r.synced) groups[key].synced = false;
+      });
+
+      const sorted = Object.values(groups).sort((a, b) => b.date.localeCompare(a.date));
+      const container = document.getElementById('historyList');
+
+      if (sorted.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-sm" style="color: #bbb;">No attendance records yet</div>';
+        return;
+      }
+
+      container.innerHTML = sorted.map((g, i) => `
+        <div class="bg-white rounded-lg p-4 border hover-scale slide-in-right" style="border-color: #e5e2db; animation-delay: ${i * 0.05}s;">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium">Class ${g.class_name} — ${formatDate(g.date)}</p>
+              <p class="text-xs mt-1" style="color: #888;">
+                <span class="badge-present">${g.present} Present</span>
+                <span class="badge-absent ml-1">${g.absent} Absent</span>
+                <span class="badge-late ml-1">${g.late} Late</span>
+              </p>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full font-medium ${g.synced ? 'badge-synced' : 'badge-pending'}">${g.synced ? '✓ Synced' : '⏳ Pending'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderStudentList() {
+      const students = allData.filter(d => d.user_type === 'student').sort((a, b) => {
+        if (a.student_class !== b.student_class) return (a.student_class || '').localeCompare(b.student_class || '', undefined, { numeric: true });
+        return (a.student_roll || '').localeCompare(b.student_roll || '', undefined, { numeric: true });
+      });
+
+      const container = document.getElementById('studentList');
+
+      if (students.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-sm" style="color: #bbb;">No students added yet</div>';
+        return;
+      }
+
+      container.innerHTML = students.map((s, i) => `
+        <div class="bg-white rounded-lg p-3 border flex items-center justify-between hover-scale slide-in-right" style="border-color: #e5e2db; animation-delay: ${i * 0.03}s;">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono px-2 py-1 rounded" style="background: #f5f3ee; color: #888;">C${s.student_class} R${s.student_roll}</span>
+            <div>
+              <p class="text-sm font-medium">${s.student_name}</p>
+              <p class="text-xs" style="color: #999;">${s.parent_phone ? 'Parent: ' + s.parent_phone : 'No parent phone'}</p>
+            </div>
+          </div>
+          <button onclick="deleteStudent('${s.__backendId}')" class="text-xs px-2 py-1 rounded btn-hover" style="color: #C62828;" aria-label="Delete student ${s.student_name}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 4h8l-.5 8H3.5L3 4zM5.5 2h3M2 4h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function switchPrincipalTab(tab, btn) {
+      ['principalTabOverview', 'principalTabReports', 'principalTabSync', 'principalTabSms'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
+      document.querySelectorAll('#screenPrincipal .tab-item').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      const tabMap = { overview: 'principalTabOverview', reports: 'principalTabReports', sync: 'principalTabSync', sms: 'principalTabSms' };
+      document.getElementById(tabMap[tab]).style.display = 'block';
+
+      if (tab === 'overview') refreshPrincipalData();
+      if (tab === 'sync') renderSyncLog();
+    }
+
+    function refreshPrincipalData() {
+      const students = allData.filter(d => d.user_type === 'student');
+      const today = new Date().toISOString().split('T')[0];
+      const todayAtt = allData.filter(d => d.user_type === 'attendance' && d.record_date === today);
+
+      const present = todayAtt.filter(a => a.record_status === 'present').length;
+      const absent = todayAtt.filter(a => a.record_status === 'absent').length;
+      const late = todayAtt.filter(a => a.record_status === 'late').length;
+      const total = present + absent + late;
+      const rate = total > 0 ? Math.round(((present + late) / total) * 100) : 0;
+
+      document.getElementById('pTotalStudents').textContent = students.length;
+      document.getElementById('pTodayPresent').textContent = present + late;
+      document.getElementById('pTodayAbsent').textContent = absent;
+      document.getElementById('pAttRate').textContent = rate + '%';
+
+      const allAtt = allData.filter(d => d.user_type === 'attendance');
+      const groups = {};
+      allAtt.forEach(r => {
+        const key = `${r.record_date}|${r.student_class}`;
+        if (!groups[key]) groups[key] = { date: r.record_date, class_name: r.student_class, present: 0, absent: 0, late: 0, synced: true };
+        if (r.record_status === 'present') groups[key].present++;
+        else if (r.record_status === 'absent') groups[key].absent++;
+        else if (r.record_status === 'late') groups[key].late++;
+        if (!r.synced) groups[key].synced = false;
+      });
+
+      const sorted = Object.values(groups).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10);
+      const tbody = document.getElementById('principalRecordsBody');
+
+      if (sorted.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-sm" style="color: #bbb;">No records available</td></tr>';
+      } else {
+        tbody.innerHTML = sorted.map(g => `
+          <tr class="hover-indent">
+            <td>${formatDate(g.date)}</td>
+            <td>Class ${g.class_name}</td>
+            <td><span class="badge-present">${g.present}</span></td>
+            <td><span class="badge-absent">${g.absent}</span></td>
+            <td><span class="badge-late">${g.late}</span></td>
+            <td><span class="text-xs px-2 py-1 rounded-full font-medium ${g.synced ? 'badge-synced' : 'badge-pending'}">${g.synced ? 'Synced' : 'Pending'}</span></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function generateReport() {
+      const classFilter = document.getElementById('reportClass').value;
+      const fromDate = document.getElementById('reportFrom').value;
+      const toDate = document.getElementById('reportTo').value;
+
+      let records = allData.filter(d => d.user_type === 'attendance');
+      if (classFilter !== 'all') records = records.filter(r => r.student_class === classFilter);
+      if (fromDate) records = records.filter(r => r.record_date >= fromDate);
+      if (toDate) records = records.filter(r => r.record_date <= toDate);
+
+      const container = document.getElementById('reportResults');
+
+      if (records.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-sm" style="color: #bbb;">No records found for the selected criteria</div>';
+        return;
+      }
+
+      const present = records.filter(r => r.record_status === 'present').length;
+      const absent = records.filter(r => r.record_status === 'absent').length;
+      const late = records.filter(r => r.record_status === 'late').length;
+      const total = records.length;
+      const rate = Math.round(((present + late) / total) * 100);
+
+      container.innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div class="p-3 rounded-lg" style="background: #f5f3ee;"><p class="text-xs" style="color: #999;">Total Records</p><p class="text-xl font-bold">${total}</p></div>
+          <div class="p-3 rounded-lg" style="background: #E8F5E9;"><p class="text-xs" style="color: #2E7D32;">Present</p><p class="text-xl font-bold" style="color: #2E7D32;">${present}</p></div>
+          <div class="p-3 rounded-lg" style="background: #FFEBEE;"><p class="text-xs" style="color: #C62828;">Absent</p><p class="text-xl font-bold" style="color: #C62828;">${absent}</p></div>
+          <div class="p-3 rounded-lg" style="background: #FFF3E0;"><p class="text-xs" style="color: #E65100;">Late</p><p class="text-xl font-bold" style="color: #E65100;">${late}</p></div>
+        </div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="flex-1 h-4 rounded-full overflow-hidden" style="background: #f5f3ee;">
+            <div class="h-full rounded-full" style="width: ${rate}%; background: var(--primary-color); transition: width 0.5s ease;"></div>
+          </div>
+          <span class="text-sm font-semibold" style="color: var(--primary-color);">${rate}% Attendance Rate</span>
+        </div>
+        <p class="text-xs" style="color: #999;">${classFilter === 'all' ? 'All Classes' : 'Class ' + classFilter} | ${fromDate ? formatDate(fromDate) : 'Start'} to ${toDate ? formatDate(toDate) : 'Today'}</p>
+      `;
+    }
+
+    function addSyncLog(message, synced) {
+      syncLogs.unshift({ message, synced, time: new Date().toLocaleTimeString() });
+      if (syncLogs.length > 20) syncLogs.pop();
+      renderSyncLog();
+    }
+
+    function renderSyncLog() {
+      const container = document.getElementById('syncLog');
+      if (syncLogs.length === 0) {
+        container.innerHTML = '<div class="text-center py-4 text-sm" style="color: #bbb;">No sync activity yet</div>';
+        return;
+      }
+
+      container.innerHTML = syncLogs.map((log, i) => `
+        <div class="bg-white rounded-lg p-3 border flex items-center justify-between slide-in-right" style="border-color: #e5e2db; animation-delay: ${i * 0.03}s;">
+          <div class="flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full" style="background: ${log.synced ? '#4CAF50' : '#FF9800'};"></span>
+            <span class="text-sm">${log.message}</span>
+          </div>
+          <span class="text-xs" style="color: #999;">${log.time}</span>
+        </div>
+      `).join('');
+    }
+
+    function simulateSync() {
+      showToast('Syncing data with server...', 'info');
+      addSyncLog('Manual sync initiated', true);
+      setTimeout(() => {
+        showToast('All data synced successfully', 'success');
+        addSyncLog('Sync completed - all records up to date', true);
+      }, 1500);
+    }
+
+    function toggleOfflineMode() {
+      isOfflineMode = !isOfflineMode;
+      const btn = document.getElementById('offlineToggleBtn');
+      const dot = document.getElementById('syncDot');
+      const label = document.getElementById('syncStatusLabel');
+      const text = document.getElementById('syncConnectionText');
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+
+      if (isOfflineMode) {
+        btn.textContent = 'Go Online';
+        dot.style.background = '#FF9800';
+        label.textContent = 'Offline';
+        text.textContent = 'Working offline - data saved locally';
+        statusDot.style.background = '#FF9800';
+        statusText.textContent = 'Offline';
+        addSyncLog('Switched to offline mode', false);
+        showToast('Offline mode - data will be stored locally', 'info');
+      } else {
+        btn.textContent = 'Simulate Offline';
+        dot.style.background = '#4CAF50';
+        label.textContent = 'Connected';
+        text.textContent = 'Online - Data syncing automatically';
+        statusDot.style.background = '#4CAF50';
+        statusText.textContent = 'Online';
+        addSyncLog('Reconnected - syncing pending data', true);
+        showToast('Back online - syncing data', 'success');
+      }
+    }
+
+    function switchGovTab(tab, btn) {
+      ['govTabDistrict', 'govTabSchools', 'govTabAnalytics'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
+      document.querySelectorAll('#screenGovernment .tab-item').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      const tabMap = { district: 'govTabDistrict', schools: 'govTabSchools', analytics: 'govTabAnalytics' };
+      document.getElementById(tabMap[tab]).style.display = 'block';
+
+      if (tab === 'district') refreshGovData();
+      if (tab === 'analytics') renderGovAnalytics();
+      if (tab === 'schools') renderGovSchools();
+    }
+
+    function refreshGovData() {
+      const students = allData.filter(d => d.user_type === 'student');
+      const schools = new Set(allData.filter(d => d.user_type === 'user' && (d.user_role === 'teacher' || d.user_role === 'principal')).map(u => u.user_school).filter(Boolean));
+      const allAtt = allData.filter(d => d.user_type === 'attendance');
+
+      const present = allAtt.filter(a => a.record_status === 'present').length;
+      const late = allAtt.filter(a => a.record_status === 'late').length;
+      const total = allAtt.length;
+      const rate = total > 0 ? Math.round(((present + late) / total) * 100) : 0;
+
+      document.getElementById('gTotalSchools').textContent = schools.size;
+      document.getElementById('gTotalStudents').textContent = students.length;
+      document.getElementById('gAvgAtt').textContent = rate + '%';
+      document.getElementById('gOfflineSchools').textContent = isOfflineMode ? '1' : '0';
+
+      const govChart = document.getElementById('govDistrictChart');
+      if (allAtt.length === 0) {
+        govChart.innerHTML = '<div class="text-center py-6 text-sm" style="color: #bbb;">Data will appear as schools submit attendance</div>';
+        return;
+      }
+
+      const classGroups = {};
+      allAtt.forEach(r => {
+        if (!classGroups[r.student_class]) classGroups[r.student_class] = { present: 0, absent: 0, late: 0, total: 0 };
+        classGroups[r.student_class].total++;
+        if (r.record_status === 'present') classGroups[r.student_class].present++;
+        else if (r.record_status === 'late') classGroups[r.student_class].late++;
+        else classGroups[r.student_class].absent++;
+      });
+
+      govChart.innerHTML = Object.entries(classGroups).sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true })).map(([cls, data]) => {
+        const pct = Math.round(((data.present + data.late) / data.total) * 100);
+        return `
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-medium w-16">Class ${cls}</span>
+            <div class="flex-1 h-5 rounded-full overflow-hidden" style="background: #f5f3ee;">
+              <div class="h-full rounded-full" style="width: ${pct}%; background: var(--primary-color); transition: width 0.6s ease;"></div>
+            </div>
+            <span class="text-xs font-semibold w-10 text-right">${pct}%</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderGovSchools() {
+      const users = allData.filter(d => d.user_type === 'user' && (d.user_role === 'teacher' || d.user_role === 'principal'));
+      const schoolMap = {};
+      users.forEach(u => {
+        if (u.user_school) {
+          if (!schoolMap[u.user_school]) schoolMap[u.user_school] = { teachers: 0, principals: 0 };
+          if (u.user_role === 'teacher') schoolMap[u.user_school].teachers++;
+          else schoolMap[u.user_school].principals++;
+        }
+      });
+
+      const container = document.getElementById('govSchoolList');
+      const entries = Object.entries(schoolMap);
+
+      if (entries.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-sm" style="color: #bbb;">No schools registered yet</div>';
+        return;
+      }
+
+      container.innerHTML = entries.map(([school, data], i) => {
+        const students = allData.filter(d => d.user_type === 'student' && d.user_school === school).length;
+        return `
+          <div class="bg-white rounded-lg p-4 border hover-scale slide-in-right" style="border-color: #e5e2db; animation-delay: ${i * 0.05}s;">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium">${school}</p>
+                <p class="text-xs mt-1" style="color: #888;">Teachers: ${data.teachers} | Principals: ${data.principals} | Students: ${students}</p>
+              </div>
+              <span class="text-xs px-2 py-1 rounded-full badge-synced">Active</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderGovAnalytics() {
+      const allAtt = allData.filter(d => d.user_type === 'attendance');
+
+      const trendContainer = document.getElementById('govTrendChart');
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const today = new Date();
+      const weekData = days.map((day, i) => {
+        const d = new Date(today);
+        d.setDate(d.getDate() - (6 - i));
+        const dateStr = d.toISOString().split('T')[0];
+        const dayAtt = allAtt.filter(a => a.record_date === dateStr);
+        const present = dayAtt.filter(a => a.record_status === 'present' || a.record_status === 'late').length;
+        const total = dayAtt.length;
+        return { day, pct: total > 0 ? Math.round((present / total) * 100) : 0, total };
+      });
+
+      trendContainer.innerHTML = weekData.map(w => `
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-medium w-8">${w.day}</span>
+          <div class="flex-1 h-4 rounded-full overflow-hidden" style="background: #f5f3ee;">
+            <div class="h-full rounded-full" style="width: ${w.pct}%; background: var(--secondary-color); transition: width 0.6s ease;"></div>
+          </div>
+          <span class="text-xs w-10 text-right" style="color: #888;">${w.total > 0 ? w.pct + '%' : '—'}</span>
+        </div>
+      `).join('');
+
+      const classContainer = document.getElementById('govClassChart');
+      const classGroups = {};
+      allAtt.forEach(r => {
+        if (!classGroups[r.student_class]) classGroups[r.student_class] = { present: 0, total: 0 };
+        classGroups[r.student_class].total++;
+        if (r.record_status === 'present' || r.record_status === 'late') classGroups[r.student_class].present++;
+      });
+
+      const classEntries = Object.entries(classGroups).sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }));
+      if (classEntries.length === 0) {
+        classContainer.innerHTML = '<div class="text-center py-4 text-sm" style="color: #bbb;">No data available</div>';
+      } else {
+        classContainer.innerHTML = classEntries.map(([cls, data]) => {
+          const pct = Math.round((data.present / data.total) * 100);
+          return `
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-medium w-16">Class ${cls}</span>
+              <div class="flex-1 h-4 rounded-full overflow-hidden" style="background: #f5f3ee;">
+                <div class="h-full rounded-full" style="width: ${pct}%; background: var(--primary-color); transition: width 0.6s ease;"></div>
+              </div>
+              <span class="text-xs w-10 text-right">${pct}%</span>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      try {
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      } catch {
+        return dateStr;
+      }
+    }
+
+    function refreshTeacherData() {
+      renderStudentList();
+      renderHistory();
+    }
+
+    const dataHandler = {
+      onDataChanged(data) {
+        allData = data;
+
+        if (currentRole === 'teacher' && currentUser) refreshTeacherData();
+        if (currentRole === 'principal' && currentUser) refreshPrincipalData();
+        if (currentRole === 'government' && currentUser) refreshGovData();
+      }
+    };
+
+    function applyConfig(config) {
+      const title = config.app_title || defaultConfig.app_title;
+      const footer = config.footer_text || defaultConfig.footer_text;
+
+      const mainTitleEl = document.getElementById('mainTitle');
+      if (mainTitleEl) mainTitleEl.textContent = title;
+
+      const footerEl = document.getElementById('footerText');
+      if (footerEl) footerEl.textContent = footer;
+    }
+
+    (async function init() {
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (config) => {
+            applyConfig(config);
+          },
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () => config.primary_color || defaultConfig.primary_color,
+                set: (v) => {
+                  config.primary_color = v;
+                  window.elementSdk.setConfig({ primary_color: v });
+                }
+              },
+              {
+                get: () => config.secondary_color || defaultConfig.secondary_color,
+                set: (v) => {
+                  config.secondary_color = v;
+                  window.elementSdk.setConfig({ secondary_color: v });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => config.font_family || defaultConfig.font_family,
+              set: (v) => {
+                config.font_family = v;
+                window.elementSdk.setConfig({ font_family: v });
+              }
+            },
+            fontSizeable: {
+              get: () => config.font_size || defaultConfig.font_size,
+              set: (v) => {
+                config.font_size = v;
+                window.elementSdk.setConfig({ font_size: v });
+              }
+            }
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ['app_title', config.app_title || defaultConfig.app_title],
+            ['school_name', config.school_name || defaultConfig.school_name],
+            ['footer_text', config.footer_text || defaultConfig.footer_text]
+          ])
+        });
+      }
+
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          console.error('Failed to initialize Data SDK');
+        }
+      }
+
+      applyConfig(defaultConfig);
+    })();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cd6d40c648d338a',t:'MTc3MTAxMTk1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html> 
